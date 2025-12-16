@@ -1,0 +1,51 @@
+<div id="wishlist-page">
+  <h2>My Wishlist</h2>
+  <div id="wishlist-items"></div>
+</div>
+
+<script>
+  function getWishlist() {
+    return JSON.parse(localStorage.getItem('wishlist')) || [];
+  }
+
+  function displayWishlist() {
+    const container = document.getElementById('wishlist-items');
+    const wishlist = getWishlist();
+
+    if (!wishlist.length) {
+      container.innerHTML = '<p>No items added yet.</p>';
+      return;
+    }
+
+    container.innerHTML = wishlist
+      .map(
+        (item) => `
+      <div style="display:flex; gap:15px; margin-bottom:20px;">
+        <img src="${item.image}" width="100" />
+        <div>
+          <h3>${item.title}</h3>
+          <a href="/products/${item.handle}">View Product</a><br />
+          <button onclick="removeWishlistItem('${item.id}')">Remove</button>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  }
+
+  function removeWishlistItem(id) {
+    const updatedWishlist = getWishlist().filter((item) => item.id != id);
+    localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+    displayWishlist();
+  }
+
+  document.addEventListener('DOMContentLoaded', displayWishlist);
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist Display",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}

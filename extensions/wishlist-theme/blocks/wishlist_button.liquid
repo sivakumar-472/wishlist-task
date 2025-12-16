@@ -1,0 +1,57 @@
+<div class="wishlist-button-wrapper">
+  <button
+    class="wishlist-btn"
+    data-product-id="{{ product.id }}"
+    data-title="{{ product.title | escape }}"
+    data-handle="{{ product.handle }}"
+  >
+    Add to Wishlist
+  </button>
+</div>
+
+<script>
+  function getWishlist() {
+    return JSON.parse(localStorage.getItem('wishlist')) || [];
+  }
+
+  function saveWishlist(data) {
+    localStorage.setItem('wishlist', JSON.stringify(data));
+  }
+
+  function updateWishlistButtons() {
+    const wishlist = getWishlist();
+
+    document.querySelectorAll('.wishlist-btn').forEach(function (btn) {
+      const id = btn.dataset.productId;
+      btn.textContent = wishlist.some((p) => p.id == id) ? 'Remove From Wishlist' : 'Add to Wishlist';
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.classList.contains('wishlist-btn')) return;
+
+    const item = {
+      id: e.target.dataset.productId,
+      title: e.target.dataset.title,
+      handle: e.target.dataset.handle,
+    };
+
+    let wishlist = getWishlist();
+    const exists = wishlist.find((p) => p.id == item.id);
+
+    exists ? (wishlist = wishlist.filter((p) => p.id != item.id)) : wishlist.push(item);
+
+    saveWishlist(wishlist);
+    updateWishlistButtons();
+  });
+
+  document.addEventListener('DOMContentLoaded', updateWishlistButtons);
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist Button",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}
