@@ -1,51 +1,68 @@
-<div class="wishlist-button-wrapper">
-  <button
-    class="wishlist-btn"
+ <div class="wishlist-button-wrapper">
+  <button 
+    class="wishlist-btn" 
     data-product-id="{{ product.id }}"
     data-title="{{ product.title | escape }}"
+    data-image="{{ product.featured_image | img_url: '300x' }}"
     data-handle="{{ product.handle }}"
   >
-    Add to Wishlist
+    ❤️ Add to Wishlist
   </button>
 </div>
 
+<style>
+  .wishlist-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+  top: -20px;   
+}
+
+.wishlist-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: transparent;
+  cursor: pointer;
+}
+</style>
+
 <script>
-  function getWishlist() {
-    return JSON.parse(localStorage.getItem('wishlist')) || [];
-  }
-
-  function saveWishlist(data) {
-    localStorage.setItem('wishlist', JSON.stringify(data));
-  }
-
   function updateWishlistButtons() {
-    const wishlist = getWishlist();
-
-    document.querySelectorAll('.wishlist-btn').forEach(function (btn) {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    document.querySelectorAll(".wishlist-btn").forEach(btn => {
       const id = btn.dataset.productId;
-      btn.textContent = wishlist.some((p) => p.id == id) ? 'Remove From Wishlist' : 'Add to Wishlist';
+      btn.textContent = wishlist.some(p => p.id == id)
+        ? "💔 Remove From Wishlist"
+        : "❤️ Add to Wishlist";
     });
   }
 
-  document.addEventListener('click', function (e) {
-    if (!e.target.classList.contains('wishlist-btn')) return;
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("wishlist-btn")) {
+      const item = {
+        id: e.target.dataset.productId,
+        title: e.target.dataset.title,
+        image: e.target.dataset.image,
+        handle: e.target.dataset.handle
+      };
 
-    const item = {
-      id: e.target.dataset.productId,
-      title: e.target.dataset.title,
-      handle: e.target.dataset.handle,
-    };
+      let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const exists = wishlist.find(p => p.id == item.id);
 
-    let wishlist = getWishlist();
-    const exists = wishlist.find((p) => p.id == item.id);
+      if (exists) {
+        wishlist = wishlist.filter(p => p.id != item.id);
+      } else {
+        wishlist.push(item);
+      }
 
-    exists ? (wishlist = wishlist.filter((p) => p.id != item.id)) : wishlist.push(item);
-
-    saveWishlist(wishlist);
-    updateWishlistButtons();
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      updateWishlistButtons();
+    }
   });
 
-  document.addEventListener('DOMContentLoaded', updateWishlistButtons);
+  document.addEventListener("DOMContentLoaded", updateWishlistButtons);
 </script>
 
 {% schema %}
@@ -54,4 +71,4 @@
   "target": "section",
   "settings": []
 }
-{% endschema %}
+{% endschema %} 
